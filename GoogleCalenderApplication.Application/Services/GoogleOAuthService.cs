@@ -36,13 +36,15 @@ namespace GoogleCalenderApplication.Application.Services
 
         private readonly IGenericRepository<Token> _tokenRepo;
         private readonly UserManager<User> _userManager;
+        private readonly IRefreshTokenService _refreshTokenService;
         #endregion
 
-        public GoogleOAuthService(IGenericRepository<Token> tokenRepo,  UserManager<User> userManager)
+        public GoogleOAuthService(IGenericRepository<Token> tokenRepo, UserManager<User> userManager, IRefreshTokenService refreshTokenService)
         {
             _httpClient = new HttpClient();
             _tokenRepo = tokenRepo;
             _userManager = userManager;
+            _refreshTokenService = refreshTokenService;
         }
         public string GetAuthCode(HttpContext httpContext , string email)
         {
@@ -90,7 +92,7 @@ namespace GoogleCalenderApplication.Application.Services
             }
         }
 
-        public async Task<ResponseModel<ResponseTokenDto>> GetNewRefreshToken(string refeshToken)
+        public async Task<ResponseModel<ResponseTokenDto>> GetNewRefreshToken(string refeshToken , string appRefreshToken)
         {
             var content = new StringContent($"client_id={clientId}&client_secret={clientSecret}&grant_type=refresh_token&refresh_token={refeshToken}");
             
@@ -117,6 +119,11 @@ namespace GoogleCalenderApplication.Application.Services
                 await _tokenRepo.Add(token);
                 await _tokenRepo.Save();
 
+                var refreshAppToken =await _refreshTokenService.RefreshToken(appRefreshToken);
+
+                if(!refreshAppToken.Ok)
+                    return ResponseModel<ResponseTokenDto>.Error("App Refresh Token has Error");
+
                 return ResponseModel<ResponseTokenDto>.Success(tokenResponse);
             }
             else
@@ -125,7 +132,7 @@ namespace GoogleCalenderApplication.Application.Services
             }
         }
 
-        public async Task<ResponseModel<string>> RevokeToken(string refeshToken)
+        public async Task<ResponseModel<string>> RevokeToken(string refeshToken, string appRefreshToken)
         {
             var content = new StringContent($"token={refeshToken}");
 
@@ -139,6 +146,10 @@ namespace GoogleCalenderApplication.Application.Services
 
                 _tokenRepo.Delete(oldToken);
                 await _tokenRepo.Save();
+                var refreshAppToken = await _refreshTokenService.RevokeToken(appRefreshToken);
+
+                if (!refreshAppToken.Ok)
+                    return ResponseModel<string>.Error("App Refresh Token has Error");
 
                 return ResponseModel<string>.Success(responseContent);
             }

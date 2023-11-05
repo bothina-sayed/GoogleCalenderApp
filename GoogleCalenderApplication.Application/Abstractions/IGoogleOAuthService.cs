@@ -12,7 +12,7 @@ namespace GoogleCalenderApplication.Application.Abstractions
     {
         string GetAuthCode(HttpContext httpContext, string email);
         Task<ResponseModel<ResponseTokenDto>> GetToken(string code, string email);
-        Task<ResponseModel<string>> RevokeToken(string refeshToken);
-        Task<ResponseModel<ResponseTokenDto>> GetNewRefreshToken(string refeshToken);
+        Task<ResponseModel<string>> RevokeToken(string refeshToken, string appRefreshToken);
+        Task<ResponseModel<ResponseTokenDto>> GetNewRefreshToken(string refeshToken, string appRefreshToken);
     }
 }

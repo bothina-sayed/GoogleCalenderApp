@@ -18,12 +18,12 @@ namespace GoogleCalenderApplication.Controllers
         }
         [AllowAnonymous]
         [HttpPost("[action]")]
-        public async Task<ActionResult<ResponseModel<AuthDto>>> RefreshToken(string token)
-            => Ok(await _googleOAuthService.GetNewRefreshToken(token));
+        public async Task<ActionResult<ResponseModel<AuthDto>>> RefreshToken(string token, string appRefreshToken)
+            => Ok(await _googleOAuthService.GetNewRefreshToken(token, appRefreshToken));
 
         [Authorize]
         [HttpPost("[action]")]
-        public async Task<ActionResult<ResponseModel<string>>> RevokeToken(string token)
-            => Ok(await _googleOAuthService.RevokeToken(token));
+        public async Task<ActionResult<ResponseModel<string>>> RevokeToken(string token, string appRefreshToken)
+            => Ok(await _googleOAuthService.RevokeToken(token, appRefreshToken));
     }
 }
