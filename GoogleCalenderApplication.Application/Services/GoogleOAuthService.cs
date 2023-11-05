@@ -25,11 +25,11 @@ namespace GoogleCalenderApplication.Application.Services
         private readonly string redirectURL = "https://localhost:7234/auth/callback";
         private readonly string prompt = "consent";
         private readonly string response_type = "code";
-        private readonly string clientId = "245177443031-0dq9gnmade809hp5jpqj2j69a9ekdb9j.apps.googleusercontent.com";
+        private readonly string clientId = " ";
         private readonly string scope = "https://www.googleapis.com/auth/calendar+https://www.googleapis.com/auth/calendar.events";
         private readonly string access_type = "offline";
         private readonly string redirect_uri_encode = "https://localhost:7234/auth/callback";
-        private readonly string clientSecret = "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";
+        private readonly string clientSecret = " ";
         private readonly string tokenEndpoint = "https://accounts.google.com/o/oauth2/token";
         private readonly string RefreshEndpoint = "https://oauth2.googleapis.com/token";
         private readonly string RevokeEndpoint = "https://oauth2.googleapis.com/revoke";
