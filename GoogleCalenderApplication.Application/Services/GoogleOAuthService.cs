@@ -146,6 +146,7 @@ namespace GoogleCalenderApplication.Application.Services
 
                 _tokenRepo.Delete(oldToken);
                 await _tokenRepo.Save();
+
                 var refreshAppToken = await _refreshTokenService.RevokeToken(appRefreshToken);
 
                 if (!refreshAppToken.Ok)
