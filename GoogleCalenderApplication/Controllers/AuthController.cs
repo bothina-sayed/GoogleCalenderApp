@@ -12,11 +12,13 @@ namespace GoogleCalenderApplication.Controllers
     {
         private readonly IAuthService _authService;
         private readonly IGoogleOAuthService _googleOAuthService;
+        private readonly IRefreshTokenService _refreshTokenService;
 
-        public AuthController(IAuthService authService, IGoogleOAuthService googleOAuthService)
+        public AuthController(IAuthService authService, IGoogleOAuthService googleOAuthService, IRefreshTokenService refreshTokenService)
         {
             _authService = authService;
             _googleOAuthService = googleOAuthService;
+            _refreshTokenService = refreshTokenService;
         }
 
         [AllowAnonymous]
@@ -48,5 +50,15 @@ namespace GoogleCalenderApplication.Controllers
         [HttpPost("[action]")]
         public async Task<ActionResult<ResponseModel<AuthDto>>> Login(LoginDto loginDto)
             => Ok(await _authService.Login(loginDto));
+
+        [AllowAnonymous]
+        [HttpPost("[action]")]
+        public async Task<ActionResult<ResponseModel<AuthDto>>> RefreshToken(string token)
+            => Ok(await _refreshTokenService.RefreshToken(token));
+
+        [Authorize]
+        [HttpPut("[action]")]
+        public async Task<ActionResult<ResponseModel<string>>> RevokeToken(string token)
+            => Ok(await _refreshTokenService.RevokeToken(token));
     }
 }

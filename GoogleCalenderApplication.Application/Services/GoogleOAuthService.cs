@@ -1,5 +1,6 @@
 ﻿using Google.Apis.Auth.OAuth2.Responses;
 using GoogleCalenderApplication.Application.Abstractions;
+using GoogleCalenderApplication.Application.Utils;
 using GoogleCalenderApplication.Domain.Abstractions;
 using GoogleCalenderApplication.Domain.DTOs;
 using GoogleCalenderApplication.Domain.Models;
@@ -89,9 +90,9 @@ namespace GoogleCalenderApplication.Application.Services
             }
         }
 
-        public async Task<ResponseModel<string>> GetNewRefreshToken(string refeshToken,string userId)
+        public async Task<ResponseModel<ResponseTokenDto>> GetNewRefreshToken(string refeshToken)
         {
-            var content = new StringContent($"client_id={clientId}&client_secret={clientSecret}&refresh_token={refeshToken}&grant_type=refresh_token", Encoding.UTF8, "application/x-www-form-urlencoded");
+            var content = new StringContent($"client_id={clientId}&client_secret={clientSecret}&grant_type=refresh_token&refresh_token={refeshToken}");
             
             var response = await _httpClient.PostAsync(RefreshEndpoint, content);
             
@@ -99,6 +100,46 @@ namespace GoogleCalenderApplication.Application.Services
 
             if (response.IsSuccessStatusCode)
             {
+                var userId = TokenExtractor.GetId();
+                var tokenResponse = Newtonsoft.Json.JsonConvert.DeserializeObject<ResponseTokenDto>(responseContent);
+
+                var oldToken =await _tokenRepo.GetObj(x=>x.refresh_token == refeshToken);
+                _tokenRepo.Delete(oldToken);
+                Token token = new Token()
+                {
+                    access_token = tokenResponse.access_token,
+                    expires_in = tokenResponse.expires_in,
+                    refresh_token = tokenResponse.refresh_token,
+                    scope = tokenResponse.scope,
+                    token_type = tokenResponse.token_type,
+                    UserId = userId,
+                };
+                await _tokenRepo.Add(token);
+                await _tokenRepo.Save();
+
+                return ResponseModel<ResponseTokenDto>.Success(tokenResponse);
+            }
+            else
+            {
+                return ResponseModel<ResponseTokenDto>.Error();
+            }
+        }
+
+        public async Task<ResponseModel<string>> RevokeToken(string refeshToken)
+        {
+            var content = new StringContent($"token={refeshToken}");
+
+            var response = await _httpClient.PostAsync(RevokeEndpoint, content);
+
+            var responseContent = await response.Content.ReadAsStringAsync();
+
+            if (response.IsSuccessStatusCode)
+            {
+                var oldToken = await _tokenRepo.GetObj(x => x.refresh_token == refeshToken);
+
+                _tokenRepo.Delete(oldToken);
+                await _tokenRepo.Save();
+
                 return ResponseModel<string>.Success(responseContent);
             }
             else

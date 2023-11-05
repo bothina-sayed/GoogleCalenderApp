@@ -27,6 +27,7 @@ namespace GoogleCalenderApplication.Controllers
             else
                 return CreatedAtAction("GetEvent", new { id = result.Data.EventId }, result.Data);
         }
+        
         [Authorize]
         [HttpGet("{id}", Name = "GetEvent")]
         public IActionResult GetEvent(string id)
@@ -39,6 +40,7 @@ namespace GoogleCalenderApplication.Controllers
             }
             return Ok(result.Data); 
         }
+        
         [Authorize]
         [HttpDelete("{eventId}", Name = "DeleteEvent")]
         public async Task<ActionResult<ResponseModel<string>>> DeleteEvent(string eventId)
@@ -49,6 +51,7 @@ namespace GoogleCalenderApplication.Controllers
             else
                 return NoContent();
         }
+        
         [Authorize]
         [HttpGet]
         public ActionResult<ResponseModel<List<CalenderEventDto>>> GetEvents([FromQuery]RequestModel requestModel)

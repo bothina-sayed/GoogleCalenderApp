@@ -10,7 +10,7 @@ namespace GoogleCalenderApplication.Domain.Models
     public class User : IdentityUser
     {
         public virtual ICollection<CalenderEvent>? CalenderEvents { get; set; }
-        public virtual ICollection<Token> Users { get; set;}
+        public virtual ICollection<Token> Tokens { get; set;}
 
     }
 }

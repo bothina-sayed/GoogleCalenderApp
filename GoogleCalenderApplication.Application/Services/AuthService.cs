@@ -93,6 +93,11 @@ namespace GoogleCalenderApplication.Application.Services
 
                 var user = _mapper.Map<User>(registerDto);
 
+                var googleResult = _googleOAuthService.GetAuthCode(httpContext,user.Email);
+
+                if (googleResult == null)
+                    return ResponseModel<AuthDto>.Error();
+
                 var createResult = await _userManager.CreateAsync(user, registerDto.Password);
 
                 if (!createResult.Succeeded)
@@ -105,7 +110,6 @@ namespace GoogleCalenderApplication.Application.Services
 
                 await _refreshTokenService.SaveRefreshToken(refreshToken);
 
-                var googleResult = _googleOAuthService.GetAuthCode(httpContext,user.Email);
 
 
                 var authDto = new AuthDto(jwtToken, refreshToken,
